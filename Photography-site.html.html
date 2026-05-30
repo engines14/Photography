@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumière — Photography</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+<style>
+/* ── Reset & Variables ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --cream: #f5f0e8;
+  --warm-white: #faf8f4;
+  --charcoal: #1a1814;
+  --muted: #7a7468;
+  --accent: #b89a6e;
+  --accent-light: #d4b896;
+  --border: rgba(26,24,20,0.12);
+  --nav-h: 72px;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--warm-white);
+  color: var(--charcoal);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* ── Custom Cursor (desktop only) ───────────────────── */
+@media (hover: hover) {
+  body { cursor: none; }
+  .cursor, .cursor-ring {
+    position: fixed; pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    transition: opacity 0.3s;
+  }
+  .cursor { width: 8px; height: 8px; background: var(--accent); }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    opacity: 0.7;
+    transition: left 0.12s ease, top 0.12s ease, opacity 0.3s;
+  }
+}
+
+/* ── Nav ─────────────────────────────────────────────── */
+nav {
+  position: fixed; inset: 0 0 auto 0;
+  z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  height: var(--nav-h);
+  background: rgba(250,248,244,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.4s;
+}
+nav.scrolled { border-color: var(--border); }
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.55rem; font-weight: 300; letter-spacing: 0.06em;
+}
+.nav-logo em { font-style: italic; color: var(--accent); }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a {
+  font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+  opacity: 0.65; transition: opacity 0.3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0;
+  width: 0; height: 1px; background: var(--accent); transition: width 0.3s;
+}
+.nav-links a:hover { opacity: 1; }
+.nav-links a:hover::after { width: 100%; }
+
+/* Hamburger (mobile) */
+.nav-toggle {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer; padding: 4px;
+}
+.nav-toggle span {
+  display: block; width: 24px; height: 1px;
+  background: var(--charcoal); transition: all 0.3s;
+}
+.nav-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none; position: fixed; inset: var(--nav-h) 0 0 0;
+  background: var(--warm-white); z-index: 190;
+  flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem; font-weight: 300;
+  color: var(--charcoal); opacity: 0.75; transition: opacity 0.2s;
+}
+.mobile-menu a:hover { opacity: 1; }
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: var(--nav-h);
+}
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 60px 80px 80px;
+}
+.hero-eyebrow {
+  font-size: 0.68rem; letter-spacing: 0.32em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 26px;
+  opacity: 0; animation: fadeUp 1s 0.3s forwards;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 4.5vw, 5.2rem);
+  font-weight: 300; line-height: 1.06;
+  margin-bottom: 28px;
+  opacity: 0; animation: fadeUp 1s 0.5s forwards;
+}
+.hero-title em { font-style: italic; color: var(--accent); }
+.hero-sub {
+  font-size: 0.88rem; line-height: 1.95; color: var(--muted);
+  max-width: 320px; margin-bottom: 48px;
+  opacity: 0; animation: fadeUp 1s 0.7s forwards;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 14px;
+  opacity: 0; animation: fadeUp 1s 0.9s forwards;
+}
+.hero-cta span {
+  font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+}
+.cta-line {
+  width: 48px; height: 1px; background: var(--accent);
+  transition: width 0.4s ease;
+}
+.hero-cta:hover .cta-line { width: 80px; }
+
+.hero-right {
+  position: relative; overflow: hidden;
+  opacity: 0; animation: fadeIn 1.2s 0.4s forwards;
+}
+.hero-mosaic {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-rows: 55% 45%;
+  gap: 3px;
+  padding: 24px 40px 0 12px;
+}
+.hero-mosaic-top { overflow: hidden; position: relative; }
+.hero-mosaic-bottom { display: grid; grid-template-columns: 55% 45%; gap: 3px; }
+.hero-mosaic-bottom div { overflow: hidden; }
+.hero-mosaic img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 7s ease;
+  filter: brightness(0.9) saturate(0.82);
+}
+.hero-mosaic-top:hover img,
+.hero-mosaic-bottom div:hover img { transform: scale(1.05); filter: brightness(0.95) saturate(1); }
+
+/* ── Section Utilities ───────────────────────────────── */
+.section-label {
+  font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent); display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.section-label::before {
+  content: ''; display: block; width: 28px; height: 1px; background: var(--accent);
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 3.5vw, 3.6rem);
+  font-weight: 300; line-height: 1.1;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+
+/* ── About Strip ─────────────────────────────────────── */
+.about-strip {
+  background: var(--charcoal); color: var(--cream);
+  padding: 100px 80px;
+  display: grid; grid-template-columns: 1fr 1.6fr; gap: 80px; align-items: center;
+}
+.about-strip .section-label,
+.about-strip .section-label::before { color: var(--accent-light); background: var(--accent-light); }
+.about-strip .section-title { color: var(--cream); }
+.about-text { font-size: 0.9rem; line-height: 2; color: rgba(245,240,232,0.6); max-width: 520px; }
+.about-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 36px; margin-top: 48px; }
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem; font-weight: 300; color: var(--accent-light); line-height: 1;
+}
+.stat-label {
+  font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(245,240,232,0.4); margin-top: 6px;
+}
+
+/* ── Gallery ─────────────────────────────────────────── */
+#gallery { padding: 110px 60px; background: var(--cream); }
+.gallery-header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 52px; flex-wrap: wrap; gap: 20px;
+}
+.gallery-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-btn {
+  padding: 8px 18px; background: none;
+  border: 1px solid var(--border);
+  font-family: 'Jost', sans-serif;
+  font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+  cursor: pointer; color: var(--muted); transition: all 0.28s;
+}
+.filter-btn.active, .filter-btn:hover {
+  background: var(--charcoal); color: var(--cream); border-color: var(--charcoal);
+}
+
+/* Masonry grid using CSS columns */
+.gallery-masonry {
+  columns: 3; column-gap: 6px;
+}
+.gallery-item {
+  break-inside: avoid; margin-bottom: 6px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.gallery-item.hidden { opacity: 0.15; pointer-events: none; }
+.gallery-item img {
+  width: 100%; height: auto; display: block;
+  transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.5s;
+  filter: saturate(0.78) brightness(0.93);
+}
+.gallery-item:hover img { transform: scale(1.06); filter: saturate(1) brightness(1); }
+.gallery-item-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(26,24,20,0.72) 0%, transparent 55%);
+  opacity: 0; transition: opacity 0.4s;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 18px 16px;
+}
+.gallery-item:hover .gallery-item-overlay { opacity: 1; }
+.gallery-item-cat {
+  font-size: 0.58rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent-light);
+}
+.gallery-item-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-style: italic; color: #fff;
+}
+
+/* ── Lightbox ────────────────────────────────────────── */
+.lightbox {
+  position: fixed; inset: 0;
+  background: rgba(26,24,20,0.96);
+  z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  padding: 40px;
+}
+.lightbox.open { display: flex; }
+.lightbox-inner {
+  position: relative; max-width: 90vw; max-height: 90vh;
+  animation: zoomIn 0.3s ease;
+}
+.lightbox-inner img {
+  max-width: 100%; max-height: 86vh; object-fit: contain;
+}
+.lightbox-close {
+  position: fixed; top: 24px; right: 32px;
+  background: none; border: none; color: var(--cream);
+  font-size: 1.4rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s;
+}
+.lightbox-close:hover { opacity: 1; }
+.lightbox-nav {
+  position: fixed; top: 50%; transform: translateY(-50%);
+  background: none; border: 1px solid rgba(245,240,232,0.2);
+  color: var(--cream); font-size: 1.2rem;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s;
+}
+.lightbox-nav:hover { background: rgba(184,154,110,0.3); }
+.lightbox-prev { left: 20px; }
+.lightbox-next { right: 20px; }
+.lightbox-caption {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  text-align: center; color: rgba(245,240,232,0.55);
+  font-size: 0.75rem; letter-spacing: 0.14em;
+}
+
+/* ── Booking ─────────────────────────────────────────── */
+#booking { display: grid; grid-template-columns: 1fr 1fr; }
+.booking-left {
+  padding: 100px 72px;
+  background: var(--charcoal); color: var(--cream);
+  position: relative; overflow: hidden;
+}
+.booking-left::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  border: 1px solid rgba(184,154,110,0.18);
+}
+.booking-left .section-label { color: var(--accent-light); }
+.booking-left .section-label::before { background: var(--accent-light); }
+.booking-left .section-title { color: var(--cream); margin-bottom: 20px; }
+.booking-desc {
+  font-size: 0.86rem; line-height: 2; color: rgba(245,240,232,0.52); margin-bottom: 44px;
+}
+.service-list { list-style: none; }
+.service-list li {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(245,240,232,0.07);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.service-list li:first-child { border-top: 1px solid rgba(245,240,232,0.07); }
+.service-name { font-size: 0.8rem; color: rgba(245,240,232,0.65); }
+.service-price { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--accent-light); }
+
+.booking-right { padding: 100px 72px; background: var(--warm-white); }
+.booking-right .section-label { margin-bottom: 36px; }
+.form-group { margin-bottom: 26px; }
+.form-label {
+  display: block; font-size: 0.62rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 9px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: none; border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300;
+  color: var(--charcoal); outline: none; transition: border-color 0.3s;
+}
+.form-select {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7468' stroke-width='1' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 4px center;
+}
+.form-textarea { resize: none; height: 78px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.submit-btn {
+  margin-top: 12px;
+  display: inline-flex; align-items: center; gap: 14px;
+  background: var(--charcoal); color: var(--cream);
+  border: none; padding: 17px 38px;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: color 0.35s;
+}
+.submit-btn::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: var(--accent); transition: width 0.38s ease; z-index: 0;
+}
+.submit-btn:hover::before { width: 100%; }
+.submit-btn span, .submit-btn .btn-arrow { position: relative; z-index: 1; }
+.success-msg {
+  display: none; margin-top: 20px; padding: 14px 18px;
+  background: rgba(184,154,110,0.1); border-left: 3px solid var(--accent);
+  font-size: 0.82rem; color: var(--charcoal);
+}
+
+/* ── Footer ──────────────────────────────────────────── */
+footer {
+  background: var(--charcoal); color: var(--cream);
+  padding: 80px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 52px;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem; font-weight: 300; margin-bottom: 18px;
+}
+.footer-brand em { font-style: italic; color: var(--accent); }
+.footer-tagline { font-size: 0.8rem; line-height: 1.9; color: rgba(245,240,232,0.38); max-width: 230px; }
+.footer-col h4 {
+  font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 18px;
+}
+.footer-col a, .footer-col p {
+  display: block; font-size: 0.8rem;
+  color: rgba(245,240,232,0.46); margin-bottom: 9px; line-height: 1.6;
+  transition: color 0.25s;
+}
+.footer-col a:hover { color: var(--accent-light); }
+.footer-bottom {
+  background: var(--charcoal); padding: 22px 80px;
+  border-top: 1px solid rgba(245,240,232,0.06);
+  display: flex; justify-content: space-between;
+  font-size: 0.68rem; color: rgba(245,240,232,0.22); letter-spacing: 0.06em;
+}
+
+/* ── Reveal Animation ────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.85s ease, transform 0.85s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── Keyframes ───────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn {
+  from { transform: scale(0.93); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+══════════════════════════════════════════════════════ */
+
+/* Tablet — ≤ 1024px */
+@media (max-width: 1024px) {
+  nav { padding: 0 32px; }
+
+  .hero { grid-template-columns: 1fr; min-height: 100svh; }
+  .hero-left { padding: 48px 36px 40px; order: 2; }
+  .hero-right { order: 1; height: 55vw; max-height: 420px; position: relative; }
+  .hero-mosaic { padding: 0; position: absolute; inset: 0; }
+  .hero-sub { max-width: 100%; }
+
+  .about-strip { grid-template-columns: 1fr; gap: 40px; padding: 72px 48px; }
+  .about-text { max-width: 100%; }
+
+  #gallery { padding: 80px 36px; }
+  .gallery-masonry { columns: 2; }
+
+  #booking { grid-template-columns: 1fr; }
+  .booking-left { padding: 72px 48px; }
+  .booking-right { padding: 72px 48px; }
+
+  footer { grid-template-columns: 1fr 1fr; gap: 40px; padding: 60px 48px; }
+  .footer-bottom { padding: 20px 48px; }
+}
+
+/* Mobile — ≤ 640px */
+@media (max-width: 640px) {
+  :root { --nav-h: 60px; }
+
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+
+  .hero-left { padding: 36px 20px 48px; }
+  .hero-right { height: 70vw; max-height: 340px; }
+  .hero-mosaic-bottom { grid-template-columns: 1fr 1fr; }
+
+  .about-strip { padding: 60px 24px; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+  .about-stats > div:last-child { grid-column: 1 / -1; }
+
+  #gallery { padding: 60px 16px; }
+  .gallery-masonry { columns: 1; }
+  .gallery-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+  .booking-left { padding: 60px 24px; }
+  .booking-right { padding: 60px 24px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  footer { grid-template-columns: 1fr; padding: 48px 24px; gap: 32px; }
+  .footer-bottom { padding: 18px 24px; flex-direction: column; gap: 6px; }
+
+  .lightbox { padding: 20px; }
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor (desktop) -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── Nav ── -->
+<nav id="nav">
+  <a href="#top" class="nav-logo">Lumi<em>ère</em></a>
+  <ul class="nav-links">
+    <li><a href="#about" onclick="closeMenu()">About</a></li>
+    <li><a href="#gallery" onclick="closeMenu()">Gallery</a></li>
+    <li><a href="#booking" onclick="closeMenu()">Book</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#gallery" onclick="closeMenu()">Gallery</a>
+  <a href="#booking" onclick="closeMenu()">Book a Session</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero" id="top">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Fine Art Photography</p>
+    <h1 class="hero-title">Every frame<br>tells a <em>story</em><br>worth keeping.</h1>
+    <p class="hero-sub">Capturing life's most precious moments with an editorial eye and a timeless touch.</p>
+    <a href="#gallery" class="hero-cta">
+      <div class="cta-line"></div>
+      <span>View the work</span>
+    </a>
+  </div>
+  <div class="hero-right">
+    <div class="hero-mosaic">
+      <div class="hero-mosaic-top">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1000&q=85&auto=format&fit=crop" alt="Wedding couple in golden light" loading="eager" />
+      </div>
+      <div class="hero-mosaic-bottom">
+        <div><img src="https://images.unsplash.com/photo-1554941829-202a0b2403b8?w=600&q=80&auto=format&fit=crop" alt="Bride portrait" loading="eager" /></div>
+        <div><img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=500&q=80&auto=format&fit=crop" alt="Landscape photography" loading="eager" /></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<div class="about-strip reveal" id="about">
+  <div>
+    <div class="section-label">About</div>
+    <h2 class="section-title">Light.<br><em>Emotion.</em><br>Memory.</h2>
+  </div>
+  <div>
+    <p class="about-text">Based in New York City, Lumière is a boutique photography studio dedicated to crafting images that endure. Whether it's the quiet intimacy of a portrait or the sweeping grandeur of a wedding ceremony, every session is approached with the same commitment to artistry, intention, and authentic connection.</p>
+    <div class="about-stats">
+      <div><div class="stat-num">12+</div><div class="stat-label">Years experience</div></div>
+      <div><div class="stat-num">840</div><div class="stat-label">Sessions shot</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-label">Return clients</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gallery ── -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <div>
+      <div class="section-label">Portfolio</div>
+      <h2 class="section-title">Selected <em>works</em></h2>
+    </div>
+    <div class="gallery-filters">
+      <button class="filter-btn active" onclick="filterGallery('all',this)">All</button>
+      <button class="filter-btn" onclick="filterGallery('wedding',this)">Weddings</button>
+      <button class="filter-btn" onclick="filterGallery('portrait',this)">Portraits</button>
+      <button class="filter-btn" onclick="filterGallery('editorial',this)">Editorial</button>
+    </div>
+  </div>
+
+  <div class="gallery-masonry" id="galleryGrid">
+    <!-- Wedding -->
+    <div class="gallery-item" data-cat="wedding" data-title="The Golden Hour" data-index="0" onclick="openLightbox(0)">
+      <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=700&q=80&auto=format&fit=crop" alt="Wedding couple golden hour" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Wedding</div><div class="gallery-item-title">The Golden Hour</div></div>
+    </div>
+    <!-- Portrait -->
+    <div class="gallery-item" data-cat="portrait" data-title="Studio Series I" data-index="1" onclick="openLightbox(1)">
+      <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80&auto=format&fit=crop" alt="Woman portrait studio" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Portrait</div><div class="gallery-item-title">Studio Series I</div></div>
+    </div>
+    <!-- Editorial -->
+    <div class="gallery-item" data-cat="editorial" data-title="Solitude" data-index="2" onclick="openLightbox(2)">
+      <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=700&q=80&auto=format&fit=crop" alt="Mountain landscape" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Editorial</div><div class="gallery-item-title">Solitude</div></div>
+    </div>
+    <!-- Wedding -->
+    <div class="gallery-item" data-cat="wedding" data-title="First Dance" data-index="3" onclick="openLightbox(3)">
+      <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=700&q=80&auto=format&fit=crop" alt="Wedding first dance" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Wedding</div><div class="gallery-item-title">First Dance</div></div>
+    </div>
+    <!-- Portrait -->
+    <div class="gallery-item" data-cat="portrait" data-title="Natural Light" data-index="4" onclick="openLightbox(4)">
+      <img src="https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600&q=80&auto=format&fit=crop" alt="Portrait natural light" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Portrait</div><div class="gallery-item-title">Natural Light</div></div>
+    </div>
+    <!-- Editorial -->
+    <div class="gallery-item" data-cat="editorial" data-title="Dusk Study" data-index="5" onclick="openLightbox(5)">
+      <img src="https://images.unsplash.com/photo-1490750967868-88df5691cc37?w=700&q=80&auto=format&fit=crop" alt="Dusk editorial" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Editorial</div><div class="gallery-item-title">Dusk Study</div></div>
+    </div>
+    <!-- Wedding -->
+    <div class="gallery-item" data-cat="wedding" data-title="Garden Ceremony" data-index="6" onclick="openLightbox(6)">
+      <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=700&q=80&auto=format&fit=crop" alt="Garden wedding ceremony" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Wedding</div><div class="gallery-item-title">Garden Ceremony</div></div>
+    </div>
+    <!-- Portrait -->
+    <div class="gallery-item" data-cat="portrait" data-title="The Gaze" data-index="7" onclick="openLightbox(7)">
+      <img src="https://images.unsplash.com/photo-1554941829-202a0b2403b8?w=600&q=80&auto=format&fit=crop" alt="Portrait the gaze" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Portrait</div><div class="gallery-item-title">The Gaze</div></div>
+    </div>
+    <!-- Editorial -->
+    <div class="gallery-item" data-cat="editorial" data-title="Open Road" data-index="8" onclick="openLightbox(8)">
+      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80&auto=format&fit=crop" alt="Mountain road editorial" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Editorial</div><div class="gallery-item-title">Open Road</div></div>
+    </div>
+    <!-- Wedding -->
+    <div class="gallery-item" data-cat="wedding" data-title="In Bloom" data-index="9" onclick="openLightbox(9)">
+      <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=700&q=80&auto=format&fit=crop" alt="Wedding florals" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Wedding</div><div class="gallery-item-title">In Bloom</div></div>
+    </div>
+    <!-- Portrait -->
+    <div class="gallery-item" data-cat="portrait" data-title="Morning Window" data-index="10" onclick="openLightbox(10)">
+      <img src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=600&q=80&auto=format&fit=crop" alt="Portrait morning window" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Portrait</div><div class="gallery-item-title">Morning Window</div></div>
+    </div>
+    <!-- Editorial -->
+    <div class="gallery-item" data-cat="editorial" data-title="Forest Light" data-index="11" onclick="openLightbox(11)">
+      <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=700&q=80&auto=format&fit=crop" alt="Forest light editorial" loading="lazy" />
+      <div class="gallery-item-overlay"><div class="gallery-item-cat">Editorial</div><div class="gallery-item-title">Forest Light</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
+  <div class="lightbox-inner">
+    <img src="" id="lightboxImg" alt="" />
+  </div>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">›</button>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<!-- ── Booking ── -->
+<section id="booking">
+  <div class="booking-left reveal">
+    <div class="section-label">Sessions</div>
+    <h2 class="section-title">Book your<br><em>session</em></h2>
+    <p class="booking-desc">Every booking starts with a conversation. Choose the session that speaks to you, and I'll handle everything from location scouting to final delivery.</p>
+    <ul class="service-list">
+      <li><span class="service-name">Portrait Session (2 hrs)</span><span class="service-price">$350</span></li>
+      <li><span class="service-name">Engagement Session (3 hrs)</span><span class="service-price">$580</span></li>
+      <li><span class="service-name">Full Wedding Day (8 hrs)</span><span class="service-price">$2,800</span></li>
+      <li><span class="service-name">Editorial / Brand (half day)</span><span class="service-price">$1,200</span></li>
+      <li><span class="service-name">Family Portrait (90 min)</span><span class="service-price">$280</span></li>
+    </ul>
+  </div>
+  <div class="booking-right reveal">
+    <div class="section-label">Enquire</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input class="form-input" type="text" placeholder="Jane" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input class="form-input" type="text" placeholder="Doe" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="jane@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Session type</label>
+      <select class="form-select">
+        <option value="">Select a session…</option>
+        <option>Portrait Session</option>
+        <option>Engagement Session</option>
+        <option>Full Wedding Day</option>
+        <option>Editorial / Brand</option>
+        <option>Family Portrait</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Preferred date</label>
+        <input class="form-input" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time preference</label>
+        <select class="form-select">
+          <option value="">Flexible</option>
+          <option>Morning (8–11am)</option>
+          <option>Golden hour (5–7pm)</option>
+          <option>Afternoon (12–4pm)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tell me about your vision</label>
+      <textarea class="form-textarea" placeholder="Location ideas, mood, story…"></textarea>
+    </div>
+    <button class="submit-btn" onclick="submitForm()">
+      <span>Send enquiry</span>
+      <span class="btn-arrow">→</span>
+    </button>
+    <div class="success-msg" id="successMsg">
+      ✦ &nbsp; Thank you! I'll be in touch within 24 hours to confirm your session.
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer id="contact">
+  <div>
+    <div class="footer-brand">Lumi<em>ère</em></div>
+    <p class="footer-tagline">Fine art photography for those who believe the best moments deserve to live forever.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Navigate</h4>
+    <a href="#about">About</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#booking">Book a session</a>
+  </div>
+  <div class="footer-col">
+    <h4>Sessions</h4>
+    <p>Portraits</p>
+    <p>Weddings</p>
+    <p>Editorial</p>
+    <p>Family</p>
+  </div>
+  <div class="footer-col" id="contact">
+    <h4>Contact</h4>
+    <p>hello@lumiere.studio</p>
+    <p>+1 (555) 012-3456</p>
+    <p>New York, NY</p>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2026 Lumière Photography Studio</span>
+  <span>All rights reserved</span>
+</div>
+
+<script>
+/* ── Custom cursor ── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+if (window.matchMedia('(hover: hover)').matches) {
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top  = e.clientY + 'px';
+    }, 65);
+  });
+}
+
+/* ── Nav scroll ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 30);
+});
+
+/* ── Mobile menu ── */
+const toggle = document.getElementById('navToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+toggle.addEventListener('click', () => {
+  toggle.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+  document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+});
+function closeMenu() {
+  toggle.classList.remove('open');
+  mobileMenu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Scroll reveal ── */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ── Gallery filter ── */
+function filterGallery(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.classList.toggle('hidden', cat !== 'all' && item.dataset.cat !== cat);
+  });
+}
+
+/* ── Lightbox ── */
+const items = Array.from(document.querySelectorAll('.gallery-item'));
+let currentIdx = 0;
+
+function openLightbox(idx) {
+  currentIdx = idx;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function navLightbox(dir) {
+  currentIdx = (currentIdx + dir + items.length) % items.length;
+  updateLightbox();
+}
+function updateLightbox() {
+  const item = items[currentIdx];
+  const img = item.querySelector('img');
+  document.getElementById('lightboxImg').src = img.src.replace('w=700','w=1200').replace('w=600','w=1000');
+  document.getElementById('lightboxCaption').textContent =
+    item.dataset.cat.toUpperCase() + ' — ' + item.dataset.title;
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') navLightbox(1);
+  if (e.key === 'ArrowLeft')  navLightbox(-1);
+});
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+
+/* ── Form submit ── */
+function submitForm() {
+  const msg = document.getElementById('successMsg');
+  msg.style.display = 'block';
+  msg.style.opacity = '0';
+  msg.style.transition = 'opacity 0.5s';
+  setTimeout(() => msg.style.opacity = '1', 20);
+}
+</script>
+</body>
+</html>
